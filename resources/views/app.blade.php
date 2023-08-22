@@ -16,6 +16,21 @@
 </head>
 
 <body class="bg-light">
+
+    <!-- alert for success -->
+
+    @if(session()->has('success'))
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>Success!</strong> {{ session()->get('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @elseif(session()->has('error'))
+    <div class="alert alert-danger alert-dismissible fade show  text-center" role="alert">
+        <strong>Error!</strong> {{ session()->get('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <a class="navbar-brand" href="#">Testing</a>
@@ -39,7 +54,11 @@
                     </li>
                     @auth
                     <li class="nav-item">
-                        <button class="nav-link btn-sm btn-danger text-white" id="logout">Logout</button>
+                        <!-- logout -->
+                        <form action="{{ route('web.logout') }}" method="post">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-danger" id="logout">Logout</button>
+                        </form>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">{{ Auth::user()->name }}</a>
@@ -76,19 +95,7 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        $('#logout').click(function () {
-            $.ajax({
-                url: "{{ route('auth.logout') }}",
-                method: 'post',
-                success: function (response) {
-                    console.log(response);
-                    window.location.href = "{{ route('login') }}";
-                },
-                error: function (xhr) {
-                    alert(xhr.responseJSON.message);
-                }
-            });
-        });
+
     </script>
     @stack('scripts')
 </body>

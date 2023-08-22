@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WebAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name("home");
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -26,11 +27,13 @@ Route::get('/dashboard', function () {
 Route::get('login', function () {
     return view('auth.login');
 })->name('login');
+Route::post('login', [WebAuthController::class, 'login'])->name('web.login');
 
 Route::get('register', function () {
     return view('auth.register');
 })->name('register');
-
+Route::post('register', [WebAuthController::class, 'register'])->name('web.register');
+Route::post('logout', [WebAuthController::class, 'logout'])->name('web.logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

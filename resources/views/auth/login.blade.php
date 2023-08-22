@@ -13,7 +13,8 @@
     <div class="col-md-6">
         <div class="card p-4">
             <h1 class="card-title text-center mb-4">Login</h1>
-            <form>
+            <form action="{{ route('web.login') }}" method="POST">
+                @csrf
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" id="email" name="email" class="form-control">
@@ -23,7 +24,7 @@
                     <input type="password" id="password" name="password" class="form-control">
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <button type="button" class="btn btn-primary">Log in</button>
+                    <button type="submit" class="btn btn-primary">Log in</button>
                     <a href="#" class="text-primary">Forgot password?</a>
                 </div>
             </form>
@@ -31,29 +32,4 @@
     </div>
 
     @endauth
-    @push('scripts')
-    <script>
-        $(function () {
-            $('button').click(function () {
-                $.ajax({
-                    url: "{{ route('auth.login') }}",
-                    method: 'post',
-                    data: {
-                        email: $('#email').val(),
-                        password: $('#password').val(),
-                    },
-                    success: function (response) {
-                        window.location.href = "/";
-                        localStorage.setItem('token', response.token);
-                        localStorage.setItem('user', JSON.stringify(response.user));
-                    },
-                    error: function (xhr) {
-                        alert(xhr.responseJSON.message);
-                    }
-                });
-            });
-        });
-
-    </script>
-    @endpush
     @endsection
