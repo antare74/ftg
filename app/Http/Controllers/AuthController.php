@@ -19,7 +19,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
     /**
@@ -29,47 +29,44 @@ class AuthController extends Controller
      */
     public function login()
     {
-        $credentials = request()->only("email", "password");
         try {
-            if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json([
-                    "message" => "invalid_credentials"
-                ], 400);
-            }
-        } catch (JWTException $e) {
+            $credentials = request()->only("email", "password");
             return response()->json([
-                "message" => "could_not_create_token"
+                $this->auth($credentials)
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage()
             ], 500);
         }
-        $user = JWTAuth::user();
-        return response()->json([
-            "token" => $token,
-            "user" => $user
-        ], 200);
     }
 
     public function register()
     {
-        $data = request()->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|confirmed'
-        ]);
+        try {
+            $data = request()->validate([
+                'name' => 'required|string',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|string|confirmed'
+            ]);
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password'])
-        ]);
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password'])
+            ]);
 
-        return response()->json([
-            'message' => 'Successfully created user!',
-            'user' => $user
-        ], 201);
-
-        $token = auth()->login($user);
-
-        return $this->respondWithToken($token);
+            return response()->json(
+                $this->auth([
+                    "email" => $data["email"],
+                    "password" => $data["password"]
+                ]), 200
+            );
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -118,5 +115,28 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
+    }
+
+    public function auth($credentials) : array {
+        try {
+            try {
+                if (!$token = JWTAuth::attempt($credentials)) {
+                    return response()->json([
+                        "message" => "invalid_credentials"
+                    ], 400);
+                }
+            } catch (JWTException $e) {
+                return response()->json([
+                    "message" => "could_not_create_token"
+                ], 500);
+            }
+            $user = JWTAuth::user();
+            return [
+                "token" => $token,
+                "user" => $user
+            ];
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }
