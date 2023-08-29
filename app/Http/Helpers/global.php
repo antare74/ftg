@@ -12,8 +12,8 @@ if (!function_exists("fibonacci")) {
     }
 }
 
-if (!function_exists("make_fibonacci")) {
-    function make_fibonacci($n) {
+if (!function_exists("make_fibonacci_pyramid")) {
+    function make_fibonacci_pyramid($n) {
         for ($i = 0; $i <= $n; $i++) {
             for ($j = 1; $j <= $i; $j++) {
                 echo $j;
@@ -23,6 +23,21 @@ if (!function_exists("make_fibonacci")) {
             }
             echo "<br>";
         }
+    }
+}
+
+
+// make fibonacci without pyramid but separated by comma
+
+if (!function_exists("make_fibonacci")) {
+    function make_fibonacci($n) {
+        $fibonacciSequence = array(0, 1);
+
+        for ($i = 2; $i < $n; $i++) {
+            $nextNumber = $fibonacciSequence[$i - 1] + $fibonacciSequence[$i - 2];
+            array_push($fibonacciSequence, $nextNumber);
+        }
+        return implode(", ", $fibonacciSequence);
     }
 }
 
